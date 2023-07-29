@@ -5,11 +5,14 @@ const AWS = require("aws-sdk");
 const app = express();
 const upload = multer();
 
+const dotenv = require('dotenv').config();
+
+
 // AWS configuration
 AWS.config.update({
-    accessKeyId: 'AKIAXSLF5EPQKPTDZPMU',
-    secretAccessKey: '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',
-    region: 'us-east-1',
+    accessKeyId: `${process.env.ACCESS_KEY_ID}`,
+    secretAccessKey: `${process.env.SECRET_ACCESS_KEY}`,
+    region: `${process.env.REGION}`,
   });
   
   // AWS S3 instance
@@ -18,7 +21,7 @@ AWS.config.update({
   // Route for handling file upload
   app.post('/upload', upload.single('bannerFile'), (req, res) => {
     const params = {
-      Bucket: 'iv-testbucket1',
+      Bucket: `${process.env.BUCKET_ID}`,
       Key: req.file.originalname,
       Body: req.file.buffer,
       ACL: 'public-read', // This makes the uploaded banner publicly accessible
