@@ -1,0 +1,40 @@
+const express = require("express");
+const PORT = 3000 || 5000;
+const multer = require("multer");
+const AWS = require("aws-sdk");
+const app = express();
+const upload = multer();
+
+// AWS configuration
+AWS.config.update({
+    accessKeyId: 'AKIAXSLF5EPQKPTDZPMU',
+    secretAccessKey: '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',
+    region: 'us-east-1',
+  });
+  
+  // AWS S3 instance
+  const s3 = new AWS.S3();
+  
+  // Route for handling file upload
+  app.post('/upload', upload.single('bannerFile'), (req, res) => {
+    const params = {
+      Bucket: 'iv-testbucket1',
+      Key: req.file.originalname,
+      Body: req.file.buffer,
+      ACL: 'public-read', // This makes the uploaded banner publicly accessible
+    };
+  
+    s3.upload(params, (err, data) => {
+      if (err) {
+        console.error('Error uploading banner:', err);
+        res.status(500).json({ error: 'Failed to upload banner' });
+      } else {
+        console.log('Banner uploaded successfully:', data.Location);
+        res.json({ url: data.Location });
+      }
+    });
+  });
+
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`)
+})
